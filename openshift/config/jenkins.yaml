@@ -1,0 +1,22 @@
+jenkins:
+  systemMessage: "Jenkins Platform - Managed by Configuration as Code"
+  numExecutors: 0
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+
+  authorizationStrategy:
+    globalMatrix:
+      entries:
+        - user:
+            name: "admin"
+            permissions:
+              - "Overall/Administer"
+
+unclassified:
+  location:
+    url: "https://jenkins-gregorie769-dev.apps.rm3.7wse.p1.openshiftapps.com"

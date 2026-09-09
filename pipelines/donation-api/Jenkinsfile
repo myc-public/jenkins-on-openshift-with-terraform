@@ -1,0 +1,26 @@
+pipeline {
+    agent {
+        kubernetes {
+            cloud 'openshift'
+            yamlFile 'agents/java/pod-template.yaml'
+            agentContainer 'maven'
+            agentInjection true
+        }
+    }
+
+    options {
+        timestamps()
+        timeout(time: 10, unit: 'MINUTES')
+        disableConcurrentBuilds()
+    }
+
+    stages {
+        stage('Agent Test') {
+            steps {
+                sh 'java -version'
+                sh 'mvn -version'
+                sh 'echo "Jenkins ephemeral agent OK"'
+            }
+        }
+    }
+}

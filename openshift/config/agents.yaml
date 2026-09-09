@@ -1,0 +1,8 @@
+jenkins:
+  clouds:
+    - kubernetes:
+        name: "openshift"
+        namespace: "gregorie769-dev"
+        serverUrl: "https://kubernetes.default.svc"
+        skipTlsVerify: true
+        webSocket: true

@@ -1,0 +1,29 @@
+jobs:
+  - script: |
+      pipelineJob('donation-api') {
+        description('CI/CD pipeline for donation-api')
+
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/myc-public/jenkins-platform.git')
+                }
+                branches('*/main')
+              }
+            }
+            scriptPath('pipelines/donation-api/Jenkinsfile')
+            lightweight(true)
+          }
+        }
+
+        properties {
+          disableConcurrentBuilds()
+        }
+
+        logRotator {
+          numToKeep(20)
+          daysToKeep(30)
+        }
+      }
