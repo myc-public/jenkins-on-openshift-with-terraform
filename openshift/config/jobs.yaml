@@ -1,29 +1,59 @@
+
 jobs:
-  - script: |
-      pipelineJob('donation-api') {
-        description('CI/CD pipeline for donation-api')
-
-        definition {
-          cpsScm {
-            scm {
-              git {
-                remote {
-                  url('https://github.com/myc-public/jenkins-platform.git')
-                }
-                branches('*/main')
+    - script: |
+          pipelineJob('gen-ai-api') {
+              description('CI/CD pipeline for gen-ai-api')
+          
+              definition {
+                  cpsScm {
+                      scm {
+                          git {
+                              remote {
+                                  url('https://github.com/myc-public/gen-ai-api.git')
+                              }
+                              branches('*/main')
+                          }
+                      }
+                      scriptPath('Jenkinsfile')
+                      lightweight(true)
+                  }
               }
-            }
-            scriptPath('pipelines/donation-api/Jenkinsfile')
-            lightweight(true)
+          
+              properties {
+                  disableConcurrentBuilds()
+              }
+          
+              logRotator {
+                  numToKeep(20)
+                  daysToKeep(30)
+              }
           }
-        }
 
-        properties {
-          disableConcurrentBuilds()
-        }
-
-        logRotator {
-          numToKeep(20)
-          daysToKeep(30)
-        }
-      }
+    - script: |
+          pipelineJob('inner-order-api') {
+              description('CI/CD pipeline for inner-order-api')
+          
+              definition {
+                  cpsScm {
+                      scm {
+                          git {
+                              remote {
+                                  url('https://github.com/myc-public/inner-order-api.git')
+                              }
+                              branches('*/main')
+                          }
+                      }
+                      scriptPath('Jenkinsfile')
+                      lightweight(true)
+                  }
+              }
+          
+              properties {
+                  disableConcurrentBuilds()
+              }
+          
+              logRotator {
+                  numToKeep(20)
+                  daysToKeep(30)
+              }
+          }
