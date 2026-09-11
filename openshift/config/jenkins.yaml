@@ -17,6 +17,22 @@ jenkins:
             permissions:
               - "Overall/Administer"
 
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              scope: GLOBAL
+              id: "sonarqube-token"
+              secret: "${SONAR_TOKEN}"
+              description: "SonarQube authentication token"
+
 unclassified:
   location:
     url: "https://jenkins-gregorie769-dev.apps.rm3.7wse.p1.openshiftapps.com"
+
+  sonarGlobalConfiguration:
+    installations:
+      - name: "SonarCloud"
+        serverUrl: "${SONAR_SERVER_URL}"
+        credentialsId: "sonarqube-token"
