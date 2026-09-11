@@ -7,3 +7,4 @@ timestamper
 ws-cleanup
 matrix-auth
 job-dsl
+sonar

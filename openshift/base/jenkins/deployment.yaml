@@ -45,6 +45,15 @@ spec:
             - name: JAVA_OPTS
               value: "-Djenkins.install.runSetupWizard=false"
 
+            - name: SONAR_SERVER_URL
+              value: "https://sonarcloud.io"
+
+            - name: SONAR_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: jenkins-sonar
+                  key: token
+
           ports:
             - name: http
               containerPort: 8080
