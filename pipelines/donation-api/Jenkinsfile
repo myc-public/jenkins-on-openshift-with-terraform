@@ -25,7 +25,7 @@ pipeline {
 
         stage('SonarCloud Analysis') {
             steps {
-                withSonarQubeEnv('SonarCloud') {
+                withSonarQubeEnv('sonarqube') {
                     sh '''
                         mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
                             -Dsonar.organization=myc-public \

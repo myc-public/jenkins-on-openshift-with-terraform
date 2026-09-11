@@ -33,6 +33,6 @@ unclassified:
 
   sonarGlobalConfiguration:
     installations:
-      - name: "SonarCloud"
+      - name: "sonarqube"
         serverUrl: "${SONAR_SERVER_URL}"
         credentialsId: "sonarqube-token"
