@@ -8,3 +8,4 @@ ws-cleanup
 matrix-auth
 job-dsl
 sonar
+pipeline-graph-view
