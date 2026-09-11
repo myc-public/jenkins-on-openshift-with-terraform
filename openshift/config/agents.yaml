@@ -38,3 +38,7 @@ jenkins:
               - emptyDirVolume:
                   memory: false
                   mountPath: "/home/jenkins"
+              - persistentVolumeClaim:
+                  claimName: "maven-m2-cache"
+                  mountPath: "/home/jenkins/.m2"
+                  readOnly: false
