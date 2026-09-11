@@ -9,3 +9,4 @@ matrix-auth
 job-dsl
 sonar
 pipeline-graph-view
+pipeline-utility-steps
