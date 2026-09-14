@@ -31,6 +31,14 @@ unclassified:
   location:
     url: "https://jenkins-gregorie769-dev.apps.rm3.7wse.p1.openshiftapps.com"
 
+  mailer:
+    smtpHost: "${SMTP_HOST}"
+    smtpPort: "${SMTP_PORT}"
+    useSsl: true
+    authentication:
+      username: "${SMTP_USERNAME}"
+      password: "${SMTP_PASSWORD}"
+
   sonarGlobalConfiguration:
     installations:
       - name: "sonarqube"

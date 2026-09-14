@@ -7,3 +7,5 @@ resources:
   - route.yaml
   - buildconfig.yaml
   - admin-secret.yaml
+  - sonar-secret.yaml
+  - smtp-secret.yaml
