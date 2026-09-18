@@ -1,11 +1,7 @@
 # Ce fichier ne documente QUE les variables non sensibles.
-# Ne jamais y mettre de vraie valeur pour les secrets : ils passent exclusivement
-# par des variables d'environnement au moment du `terraform apply` :
-#
-#   export TF_VAR_jenkins_admin_password="..."
-#   export TF_VAR_sonar_token="..."
-#   export TF_VAR_smtp_username="..."
-#   export TF_VAR_smtp_password="..."
+# Les secrets vont dans terraform/secrets.auto.tfvars (gitignoré, chargé automatiquement
+# par Terraform) : voir secrets.auto.tfvars.example.
+# TODO: basculer les secrets vers HashiCorp Vault / AWS Secrets Manager.
 #
 # Copier ce fichier en terraform.tfvars (gitignoré) si tu veux surcharger les valeurs par défaut.
 
