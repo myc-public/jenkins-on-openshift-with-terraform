@@ -32,7 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 CLAUDE.md
-README.md
+README_local.md
 
 ### Terraform ###
 terraform/.terraform/
