@@ -1,0 +1,59 @@
+
+jobs:
+    - script: |
+          pipelineJob('gen-ai-api') {
+              description('CI/CD pipeline for gen-ai-api')
+          
+              definition {
+                  cpsScm {
+                      scm {
+                          git {
+                              remote {
+                                  url('https://github.com/myc-public/gen-ai-api.git')
+                              }
+                              branches('*/main')
+                          }
+                      }
+                      scriptPath('cicd/Jenkinsfile')
+                      lightweight(true)
+                  }
+              }
+          
+              properties {
+                  disableConcurrentBuilds()
+              }
+          
+              logRotator {
+                  numToKeep(20)
+                  daysToKeep(30)
+              }
+          }
+
+    - script: |
+          pipelineJob('inner-order-api') {
+              description('CI/CD pipeline for inner-order-api')
+          
+              definition {
+                  cpsScm {
+                      scm {
+                          git {
+                              remote {
+                                  url('https://github.com/myc-public/inner-order-api.git')
+                              }
+                              branches('*/main')
+                          }
+                      }
+                      scriptPath('cicd/Jenkinsfile')
+                      lightweight(true)
+                  }
+              }
+          
+              properties {
+                  disableConcurrentBuilds()
+              }
+          
+              logRotator {
+                  numToKeep(20)
+                  daysToKeep(30)
+              }
+          }

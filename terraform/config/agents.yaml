@@ -1,0 +1,44 @@
+jenkins:
+  clouds:
+    - kubernetes:
+        name: "openshift"
+        namespace: "gregorie769-dev"
+        serverUrl: "https://kubernetes.default.svc"
+        skipTlsVerify: true
+        webSocket: true
+
+        templates:
+          - name: "java-maven"
+            namespace: "gregorie769-dev"
+            label: "java-maven"
+            serviceAccount: "jenkins"
+
+            containers:
+              - name: "maven"
+                image: "maven:3.9.11-eclipse-temurin-21"
+                command: "sleep"
+                args: "99d"
+                ttyEnabled: true
+
+                envVars:
+                  - envVar:
+                      key: "HOME"
+                      value: "/home/jenkins"
+
+                  - envVar:
+                      key: "MAVEN_CONFIG"
+                      value: "/home/jenkins/.m2"
+
+                resourceRequestCpu: "500m"
+                resourceRequestMemory: "1Gi"
+                resourceLimitCpu: "1"
+                resourceLimitMemory: "2Gi"
+
+            volumes:
+              - emptyDirVolume:
+                  memory: false
+                  mountPath: "/home/jenkins"
+              - persistentVolumeClaim:
+                  claimName: "maven-m2-cache"
+                  mountPath: "/home/jenkins/.m2"
+                  readOnly: false
