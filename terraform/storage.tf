@@ -1,4 +1,6 @@
 resource "kubernetes_persistent_volume_claim" "jenkins_home" {
+  wait_until_bound = false
+
   metadata {
     name      = "jenkins-home"
     namespace = var.namespace
