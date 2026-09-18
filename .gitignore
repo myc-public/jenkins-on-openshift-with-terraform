@@ -31,5 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
-
+CLAUDE.md
 README.md
+
+### Terraform ###
+terraform/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform/terraform.tfvars.example
+crash.log
+crash.*.log

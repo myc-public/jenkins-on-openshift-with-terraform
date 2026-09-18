@@ -1,0 +1,15 @@
+# Ce fichier ne documente QUE les variables non sensibles.
+# Ne jamais y mettre de vraie valeur pour les secrets : ils passent exclusivement
+# par des variables d'environnement au moment du `terraform apply` :
+#
+#   export TF_VAR_jenkins_admin_password="..."
+#   export TF_VAR_sonar_token="..."
+#   export TF_VAR_smtp_username="..."
+#   export TF_VAR_smtp_password="..."
+#
+# Copier ce fichier en terraform.tfvars (gitignoré) si tu veux surcharger les valeurs par défaut.
+
+namespace        = "gregorie769-dev"
+sonar_server_url = "https://sonarcloud.io"
+smtp_host        = "smtp.gmail.com"
+smtp_port        = "465"
