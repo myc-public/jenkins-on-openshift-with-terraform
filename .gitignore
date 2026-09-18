@@ -33,6 +33,7 @@ build/
 .vscode/
 CLAUDE.md
 README_local.md
+CHANGELOG.md
 
 ### Terraform ###
 terraform/.terraform/
