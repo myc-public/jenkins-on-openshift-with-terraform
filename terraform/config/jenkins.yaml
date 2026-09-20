@@ -72,6 +72,32 @@ unclassified:
                         <password>^${env.NEXUS_PASSWORD}</password>
                     </server>
                 </servers>
+                <profiles>
+                    <profile>
+                        <id>nexus-snapshots</id>
+                        <!-- URLs ignorées : le mirror "*" les redirige vers Nexus. Ce profil sert
+                             uniquement à autoriser les SNAPSHOT (central du Super POM = releases seulement) -->
+                        <repositories>
+                            <repository>
+                                <id>central</id>
+                                <url>http://localhost</url>
+                                <releases><enabled>true</enabled></releases>
+                                <snapshots><enabled>true</enabled></snapshots>
+                            </repository>
+                        </repositories>
+                        <pluginRepositories>
+                            <pluginRepository>
+                                <id>central</id>
+                                <url>http://localhost</url>
+                                <releases><enabled>true</enabled></releases>
+                                <snapshots><enabled>true</enabled></snapshots>
+                            </pluginRepository>
+                        </pluginRepositories>
+                    </profile>
+                </profiles>
+                <activeProfiles>
+                    <activeProfile>nexus-snapshots</activeProfile>
+                </activeProfiles>
             </settings>
 
   mailer:
