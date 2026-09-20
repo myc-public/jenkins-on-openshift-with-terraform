@@ -57,3 +57,32 @@ jobs:
                   daysToKeep(30)
               }
           }
+
+    - script: |
+          pipelineJob('inner-api-donation') {
+              description('CI/CD pipeline for inner-api-donation')
+
+              definition {
+                  cpsScm {
+                      scm {
+                          git {
+                              remote {
+                                  url('https://github.com/myc-public/inner-api-donation.git')
+                              }
+                              branches('*/main')
+                          }
+                      }
+                      scriptPath('cicd/Jenkinsfile-ci')
+                      lightweight(true)
+                  }
+              }
+
+              properties {
+                  disableConcurrentBuilds()
+              }
+
+              logRotator {
+                  numToKeep(20)
+                  daysToKeep(30)
+              }
+          }
