@@ -33,46 +33,46 @@ credentials:
               password: "${NEXUS_PASSWORD}"
               description: "Nexus repository credentials (read maven-public, deploy releases/snapshots)"
 
-configFiles:
-  files:
-    - customFile:
-        id: "nexus-maven-settings"
-        name: "nexus-maven-settings.xml"
-        comment: "Maven settings.xml enforcing Nexus as the sole repository (blocks direct Maven Central access)"
-        content: |
-          <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
-              <mirrors>
-                  <mirror>
-                      <id>nexus</id>
-                      <mirrorOf>*</mirrorOf>
-                      <name>Nexus - single entry point for all repositories</name>
-                      <url>https://newly-podcast-rising-preference.trycloudflare.com/repository/maven-public/</url>
-                  </mirror>
-              </mirrors>
-              <servers>
-                  <server>
-                      <id>nexus</id>
-                      <username>${env.NEXUS_USERNAME}</username>
-                      <password>${env.NEXUS_PASSWORD}</password>
-                  </server>
-                  <server>
-                      <id>nexus-releases</id>
-                      <username>${env.NEXUS_USERNAME}</username>
-                      <password>${env.NEXUS_PASSWORD}</password>
-                  </server>
-                  <server>
-                      <id>nexus-snapshots</id>
-                      <username>${env.NEXUS_USERNAME}</username>
-                      <password>${env.NEXUS_PASSWORD}</password>
-                  </server>
-              </servers>
-          </settings>
-
 unclassified:
   location:
     url: "https://jenkins-gregorie769-dev.apps.rm3.7wse.p1.openshiftapps.com"
+
+  globalConfigFiles:
+    configs:
+      - custom:
+          id: "nexus-maven-settings"
+          name: "nexus-maven-settings.xml"
+          comment: "Maven settings.xml enforcing Nexus as the sole repository (blocks direct Maven Central access)"
+          content: |
+            <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+                <mirrors>
+                    <mirror>
+                        <id>nexus</id>
+                        <mirrorOf>*</mirrorOf>
+                        <name>Nexus - single entry point for all repositories</name>
+                        <url> https://shorts-objectives-hold-longitude.trycloudflare.com/repository/maven-public/</url>
+                    </mirror>
+                </mirrors>
+                <servers>
+                    <server>
+                        <id>nexus</id>
+                        <username>^${env.NEXUS_USERNAME}</username>
+                        <password>^${env.NEXUS_PASSWORD}</password>
+                    </server>
+                    <server>
+                        <id>nexus-releases</id>
+                        <username>^${env.NEXUS_USERNAME}</username>
+                        <password>^${env.NEXUS_PASSWORD}</password>
+                    </server>
+                    <server>
+                        <id>nexus-snapshots</id>
+                        <username>^${env.NEXUS_USERNAME}</username>
+                        <password>^${env.NEXUS_PASSWORD}</password>
+                    </server>
+                </servers>
+            </settings>
 
   mailer:
     smtpHost: "${SMTP_HOST}"
