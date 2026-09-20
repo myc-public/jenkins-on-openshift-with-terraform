@@ -32,6 +32,10 @@ jobs:
     - script: |
           pipelineJob('inner-order-api') {
               description('CI/CD pipeline for inner-order-api')
+
+              parameters {
+                  choiceParam('BRANCH', ['develop', 'uat', 'preprod', 'main'], 'Git Branch to be used by the build')
+              }
           
               definition {
                   cpsScm {
@@ -61,6 +65,10 @@ jobs:
     - script: |
           pipelineJob('inner-donation-api') {
               description('CI/CD pipeline for inner-donation-api')
+
+              parameters {
+                  choiceParam('BRANCH', ['develop', 'uat', 'preprod', 'main'], 'Git Branch to be used by the build')
+              }
 
               definition {
                   cpsScm {
