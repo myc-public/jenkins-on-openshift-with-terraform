@@ -31,9 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-CLAUDE.md
-README_local.md
-CHANGELOG.md
 
 ### Terraform ###
 terraform/.terraform/
@@ -43,3 +40,10 @@ terraform/.terraform/
 !terraform/terraform.tfvars.example
 crash.log
 crash.*.log
+
+### others ###
+CLAUDE.md
+README_local.md
+CHANGELOG.md
+docs
+.log

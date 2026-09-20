@@ -83,3 +83,15 @@ variable "smtp_password" {
   type        = string
   sensitive   = true
 }
+
+variable "nexus_username" {
+  description = "Utilisateur Nexus. À fournir via TF_VAR_nexus_username."
+  type        = string
+  sensitive   = true
+}
+
+variable "nexus_password" {
+  description = "Mot de passe/token Nexus. À fournir via TF_VAR_nexus_password."
+  type        = string
+  sensitive   = true
+}
