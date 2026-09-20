@@ -87,6 +87,26 @@ resource "kubernetes_deployment" "jenkins" {
           }
 
           env {
+            name = "NEXUS_USERNAME"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.jenkins_nexus.metadata[0].name
+                key  = "username"
+              }
+            }
+          }
+
+          env {
+            name = "NEXUS_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.jenkins_nexus.metadata[0].name
+                key  = "password"
+              }
+            }
+          }
+
+          env {
             name  = "SMTP_HOST"
             value = var.smtp_host
           }

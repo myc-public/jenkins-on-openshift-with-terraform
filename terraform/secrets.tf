@@ -46,3 +46,20 @@ resource "kubernetes_secret" "jenkins_sonar" {
     token = var.sonar_token
   }
 }
+
+resource "kubernetes_secret" "jenkins_nexus" {
+  metadata {
+    name      = "jenkins-nexus"
+    namespace = var.namespace
+    labels = {
+      "app.kubernetes.io/name" = "jenkins"
+    }
+  }
+
+  type = "Opaque"
+
+  data = {
+    username = var.nexus_username
+    password = var.nexus_password
+  }
+}

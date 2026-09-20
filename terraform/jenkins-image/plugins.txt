@@ -3,6 +3,7 @@ kubernetes
 workflow-aggregator
 git
 credentials-binding
+config-file-provider
 timestamper
 ws-cleanup
 matrix-auth
