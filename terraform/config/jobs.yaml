@@ -59,15 +59,15 @@ jobs:
           }
 
     - script: |
-          pipelineJob('inner-api-donation') {
-              description('CI/CD pipeline for inner-api-donation')
+          pipelineJob('inner-donation-api') {
+              description('CI/CD pipeline for inner-donation-api')
 
               definition {
                   cpsScm {
                       scm {
                           git {
                               remote {
-                                  url('https://github.com/myc-public/inner-api-donation.git')
+                                  url('https://github.com/myc-public/inner-donation-api.git')
                               }
                               branches('*/main')
                           }
