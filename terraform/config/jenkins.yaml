@@ -52,7 +52,7 @@ unclassified:
                         <id>nexus</id>
                         <mirrorOf>*</mirrorOf>
                         <name>Nexus - single entry point for all repositories</name>
-                        <url>https://defend-provider-ladder-biographies.trycloudflare.com/repository/maven-public/</url>
+                        <url>https://stylish-delete-anyway-functional.trycloudflare.com/repository/maven-public/</url>
                     </mirror>
                 </mirrors>
                 <servers>
