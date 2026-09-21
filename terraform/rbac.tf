@@ -35,6 +35,37 @@ resource "kubernetes_role" "jenkins" {
     resources  = ["pods/log"]
     verbs      = ["get", "list", "watch"]
   }
+
+  # Build d'image (BuildConfig binaire) et tag immuable dans le registry interne
+  rule {
+    api_groups = ["build.openshift.io"]
+    resources  = ["buildconfigs"]
+    verbs      = ["get", "list", "create", "update", "patch"]
+  }
+
+  rule {
+    api_groups = ["build.openshift.io"]
+    resources  = ["buildconfigs/instantiate", "buildconfigs/instantiatebinary"]
+    verbs      = ["create"]
+  }
+
+  rule {
+    api_groups = ["build.openshift.io"]
+    resources  = ["builds"]
+    verbs      = ["get", "list", "watch"]
+  }
+
+  rule {
+    api_groups = ["build.openshift.io"]
+    resources  = ["builds/log"]
+    verbs      = ["get"]
+  }
+
+  rule {
+    api_groups = ["image.openshift.io"]
+    resources  = ["imagestreams", "imagestreamtags"]
+    verbs      = ["get", "list", "create", "update", "patch"]
+  }
 }
 
 resource "kubernetes_role_binding" "jenkins" {

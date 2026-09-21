@@ -100,3 +100,16 @@ variable "nexus_url" {
   description = "URL de base de Nexus (tunnel Cloudflare), sans slash final. Source unique : injectée en variable d'environnement NEXUS_URL dans Jenkins et ses builds."
   type        = string
 }
+
+
+variable "gitops_git_username" {
+  description = "Utilisateur Git du depot GitOps (compte de service dedie). A fournir via TF_VAR_gitops_git_username."
+  type        = string
+  sensitive   = true
+}
+
+variable "gitops_git_token" {
+  description = "Token Git (droits push sur le depot GitOps uniquement). A fournir via TF_VAR_gitops_git_token."
+  type        = string
+  sensitive   = true
+}

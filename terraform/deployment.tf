@@ -112,6 +112,26 @@ resource "kubernetes_deployment" "jenkins" {
           }
 
           env {
+            name = "GITOPS_GIT_USERNAME"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.jenkins_gitops.metadata[0].name
+                key  = "username"
+              }
+            }
+          }
+
+          env {
+            name = "GITOPS_GIT_TOKEN"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.jenkins_gitops.metadata[0].name
+                key  = "token"
+              }
+            }
+          }
+
+          env {
             name  = "SMTP_HOST"
             value = var.smtp_host
           }

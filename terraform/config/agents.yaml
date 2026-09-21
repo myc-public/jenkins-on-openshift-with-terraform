@@ -34,6 +34,24 @@ jenkins:
                 resourceLimitCpu: "1"
                 resourceLimitMemory: "2Gi"
 
+              # Client oc pour lancer le build d'image (BuildConfig) depuis la pipeline :
+              # utilise container('oc') { ... } - s'authentifie avec le ServiceAccount jenkins
+              - name: "oc"
+                image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+                command: "sleep"
+                args: "99d"
+                ttyEnabled: true
+
+                envVars:
+                  - envVar:
+                      key: "HOME"
+                      value: "/home/jenkins"
+
+                resourceRequestCpu: "100m"
+                resourceRequestMemory: "128Mi"
+                resourceLimitCpu: "500m"
+                resourceLimitMemory: "512Mi"
+
             volumes:
               - emptyDirVolume:
                   memory: false

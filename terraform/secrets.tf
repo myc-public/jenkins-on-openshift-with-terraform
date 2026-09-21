@@ -63,3 +63,20 @@ resource "kubernetes_secret" "jenkins_nexus" {
     password = var.nexus_password
   }
 }
+
+resource "kubernetes_secret" "jenkins_gitops" {
+  metadata {
+    name      = "jenkins-gitops"
+    namespace = var.namespace
+    labels = {
+      "app.kubernetes.io/name" = "jenkins"
+    }
+  }
+
+  type = "Opaque"
+
+  data = {
+    username = var.gitops_git_username
+    token    = var.gitops_git_token
+  }
+}

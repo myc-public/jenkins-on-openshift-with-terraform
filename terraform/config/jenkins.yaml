@@ -39,6 +39,12 @@ credentials:
               username: "${NEXUS_USERNAME}"
               password: "${NEXUS_PASSWORD}"
               description: "Nexus repository credentials (read maven-public, deploy releases/snapshots)"
+          - usernamePassword:
+              scope: GLOBAL
+              id: "gitops-git-credentials"
+              username: "${GITOPS_GIT_USERNAME}"
+              password: "${GITOPS_GIT_TOKEN}"
+              description: "Git credentials for the GitOps repository (push image tags)"
 
 unclassified:
   location:
