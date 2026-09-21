@@ -87,6 +87,11 @@ resource "kubernetes_deployment" "jenkins" {
           }
 
           env {
+            name  = "NEXUS_URL"
+            value = var.nexus_url
+          }
+
+          env {
             name = "NEXUS_USERNAME"
             value_from {
               secret_key_ref {

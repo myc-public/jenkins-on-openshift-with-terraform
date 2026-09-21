@@ -95,3 +95,8 @@ variable "nexus_password" {
   type        = string
   sensitive   = true
 }
+
+variable "nexus_url" {
+  description = "URL de base de Nexus (tunnel Cloudflare), sans slash final. Source unique : injectée en variable d'environnement NEXUS_URL dans Jenkins et ses builds."
+  type        = string
+}

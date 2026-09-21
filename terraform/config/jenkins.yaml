@@ -2,6 +2,13 @@ jenkins:
   systemMessage: "Jenkins Platform - Managed by Configuration as Code"
   numExecutors: 0
 
+  # NEXUS_URL (source unique : var.nexus_url) exposee a tous les builds, y compris sur les agents
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: "NEXUS_URL"
+            value: "${NEXUS_URL}"
+
   securityRealm:
     local:
       allowsSignup: false
@@ -52,7 +59,7 @@ unclassified:
                         <id>nexus</id>
                         <mirrorOf>*</mirrorOf>
                         <name>Nexus - single entry point for all repositories</name>
-                        <url>https://stylish-delete-anyway-functional.trycloudflare.com/repository/maven-public/</url>
+                        <url>^${env.NEXUS_URL}/repository/maven-public/</url>
                     </mirror>
                 </mirrors>
                 <servers>
