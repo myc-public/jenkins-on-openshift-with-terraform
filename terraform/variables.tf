@@ -1,13 +1,11 @@
 variable "kubeconfig_path" {
-  description = "Chemin du kubeconfig utilisé pour se connecter au cluster OpenShift (session déjà ouverte via `oc login`)."
+  description = "Chemin du kubeconfig utilisé pour se connecter au cluster OpenShift (session déjà ouverte via `oc login`). Obligatoire : pas de valeur par défaut, pour empêcher un apply accidentel sur ~/.kube/config (contexte minikube)."
   type        = string
-  default     = "~/.kube/config"
 }
 
 variable "kubeconfig_context" {
-  description = "Contexte kubeconfig à utiliser. Laisser vide (null) pour utiliser le contexte courant."
+  description = "Contexte kubeconfig à utiliser. Obligatoire : pas de valeur par défaut, pour empêcher un apply accidentel sur le contexte kubectl courant."
   type        = string
-  default     = null
 }
 
 variable "namespace" {
