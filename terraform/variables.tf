@@ -14,6 +14,12 @@ variable "namespace" {
   default     = "gregorie769-dev"
 }
 
+variable "apps_domain" {
+  description = "Domaine des Routes du cluster (change avec le cluster) : l'URL Jenkins en est deduite."
+  type        = string
+  default     = "apps.rm3.7wse.p1.openshiftapps.com"
+}
+
 variable "jenkins_image" {
   description = "Image Jenkins produite par le BuildConfig (ImageStreamTag interne)."
   type        = string

@@ -9,3 +9,4 @@ namespace        = "gregorie769-dev"
 sonar_server_url = "https://sonarcloud.io"
 smtp_host        = "smtp.gmail.com"
 smtp_port        = "465"
+apps_domain      = "apps.rm3.7wse.p1.openshiftapps.com"  # domaine des Routes : change avec le cluster (REBUILD.md etape 2)

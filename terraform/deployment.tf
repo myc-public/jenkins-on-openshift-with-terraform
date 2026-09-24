@@ -72,6 +72,11 @@ resource "kubernetes_deployment" "jenkins" {
           }
 
           env {
+            name  = "JENKINS_URL"
+            value = "https://jenkins-${var.namespace}.${var.apps_domain}"
+          }
+
+          env {
             name  = "SONAR_SERVER_URL"
             value = var.sonar_server_url
           }
