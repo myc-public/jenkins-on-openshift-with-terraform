@@ -1,19 +1,23 @@
 variable "kubeconfig_path" {
-  description = "Chemin du kubeconfig utilisé pour se connecter au cluster OpenShift (session déjà ouverte via `oc login`)."
+  description = "Chemin du kubeconfig utilisé pour se connecter au cluster OpenShift (session déjà ouverte via `oc login`). Obligatoire : pas de valeur par défaut, pour empêcher un apply accidentel sur ~/.kube/config (contexte minikube)."
   type        = string
-  default     = "~/.kube/config"
 }
 
 variable "kubeconfig_context" {
-  description = "Contexte kubeconfig à utiliser. Laisser vide (null) pour utiliser le contexte courant."
+  description = "Contexte kubeconfig à utiliser. Obligatoire : pas de valeur par défaut, pour empêcher un apply accidentel sur le contexte kubectl courant."
   type        = string
-  default     = null
 }
 
 variable "namespace" {
   description = "Namespace OpenShift pré-provisionné par le Developer Sandbox Red Hat."
   type        = string
   default     = "gregorie769-dev"
+}
+
+variable "apps_domain" {
+  description = "Domaine des Routes du cluster (change avec le cluster) : l'URL Jenkins en est deduite."
+  type        = string
+  default     = "apps.rm3.7wse.p1.openshiftapps.com"
 }
 
 variable "jenkins_image" {
