@@ -275,8 +275,8 @@ Points relevés pendant L0, à traiter plus tard :
 | Lot | Contenu | Statut | Preuve attendue |
 |---|---|---|---|
 | K0 | Décisions DS1-DS12, ADR, architecture | en cours | ADR du 28/09 |
-| K1 | Keycloak as code (PostgreSQL, realm importé depuis Git), local + GitOps | todo | Token obtenu, JWKS joignable |
-| K2 | Resource server : issuer Keycloak, audience, rôles / scopes → autorités, sécurité activée partout | todo | 401 / 403 / 200 |
+| K1 | Keycloak as code (PostgreSQL, realm importé depuis Git), local + GitOps | en cours | Local OK le 28/09 (Keycloak 26.7.4, keycloak-config-cli 26.5.5, `gitops-platform/local/keycloak`) : token `donation-service` (iss, `aud=donation-api`, `donation:read`, rôle `agent`, 300 s), JWKS 200, refus (scope non autorisé, password grant, PKCE absent, redirect_uri étrangère), réimport idempotent ; reste : manifestes OpenShift + Argo |
+| K2 | Resource server : issuer Keycloak, audience, rôles / scopes → autorités, sécurité activée partout | en cours | Local OK le 01/10 (branche `feature/k2-resource-server`, 75 tests verts dont `JwtValidationTest` : iss / aud / expiration / signature) ; Keycloak local : sans token 401, `donation:read` GET 200 / POST 403, read+write POST 201, audience sans scope 403, token `master` 401, token altéré 401, `/management/health` 200, CORS fermé ; starter Boot 4 `spring-boot-starter-security-oauth2-resource-server` (sans lui, aucun décodeur JWT) ; reste : commit / merge, variables `OIDC_*` dans l'overlay au déploiement |
 | K3 | RBAC : matrice rôle × opération (`@PreAuthorize`) | todo | Un test par case |
 | K4 | ABAC : `owner_sub` (Flyway), contrôle du propriétaire | todo | Donateur A sur une ressource de B → 403 |
 | K5 | APISIX externe (WAF Coraza, liste blanche, limitation) + interne (JWT, scopes) ; NetworkPolicy ; suppression des Routes | todo | Attaque OWASP bloquée ; appel direct à l'API impossible |
