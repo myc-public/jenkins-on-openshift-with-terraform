@@ -77,6 +77,7 @@ Décisions validées le 28/09 (cf. [ROADMAP](ROADMAP.md), section Sécurité, lo
 | DS10 | WAF en bordure, avec APISIX externe | Filtrer le trafic non fiable avant le BFF (cible principale : cookies, sessions, callback OIDC) ; un WAF après le BFF inspecte un trafic déjà reconstruit |
 | DS11 | Pilote : mapper d'audience `donation-api` et relais du token ; cible : token exchange (RFC 8693) | Limiter la portée du token de l'utilisateur à l'API appelée |
 | DS12 | Sessions du BFF dans Redis (Auth.js avec stockage serveur) | Tokens jamais dans un cookie, même chiffré ; BFF sans état et multi-instances (15-factor) |
+| DS13 | Modèle C (01/10) : l'API vérifie des **permissions** (rôles de client `donation-api`, ex. `donor:delete`) ; la matrice = rôles de realm **composites** `donation-admin` / `donation-agent` / `donation-donor`, as code dans le realm ; ABAC dans l'API | Les API ne connaissent pas les rôles métier ; gouvernance centrale sans service à exploiter ni appel par requête ; source des permissions remplaçable plus tard sans toucher aux API |
 
 Options écartées :
 - **WAF après le BFF** (proposition initiale) : laisse l'External Gateway et le BFF exposés au trafic brut.
@@ -127,3 +128,13 @@ Options écartées :
 ## Contraintes du Sandbox
 
 Pas d'opérateur (Keycloak, APISIX Ingress), pas de CRD, pas de service mesh (pas de mTLS entre pods) : tout en Deployments et ConfigMaps GitOps, contrôle des flux par NetworkPolicy. Quota `requests.cpu` 3 (950m utilisés le 27/09) : Keycloak, PostgreSQL, deux APISIX, Next.js et Redis tiennent, avec des requests réduites au pilote.
+
+## Autorisation métier : Keycloak ou service dédié (ADR du 01/10)
+
+**Keycloak gère** : authentification, fédération, utilisateurs / groupes / organisations (multi-organisation), rôles de realm et de client, rôles composites (rôle métier → permissions), contenu des tokens (audience, scopes, token limité à une API), token exchange, administration déléguée par organisation, audit.
+
+**Un service d'autorisation dédié se justifie pour** : rôles personnalisables par organisation (administrés par le métier), gouvernance des accès (demande / approbation, séparation des tâches, attributions temporaires, délégations, recertification, rapports), autorisation sur les données à grande échelle (propriétaire, périmètre, relations : PDP OpenFGA / OPA / Cerbos), règles contextuelles (montant, état, canal), catalogue des permissions déclaré as code par les applications. **Jamais** : authentification, cycle de vie des identités, sessions, émission des tokens.
+
+**Points à éviter** (constatés sur un microservice RBAC antérieur) : utilisateurs et groupes dupliqués avec l'IdP (référencer le `sub`), permissions lues par chaque API à chaque requête (les porter dans le token, calculées à l'émission), relation Rôle ↔ Application redondante avec Rôle → Permissions, administration non cloisonnée par organisation, utilisateur limité à une organisation.
+
+**Décision** : modèle C au pilote. Service dédié déclenché si l'un des critères est atteint : rôles différents par organisation ; workflows d'approbation / recertification / séparation des tâches ; règles sur les données partagées par plusieurs API. Il deviendrait alors la source des permissions du token (mapper Keycloak, avec cache), les API restant inchangées.
