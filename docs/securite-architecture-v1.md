@@ -138,3 +138,52 @@ Pas d'opérateur (Keycloak, APISIX Ingress), pas de CRD, pas de service mesh (pa
 **Points à éviter** (constatés sur un microservice RBAC antérieur) : utilisateurs et groupes dupliqués avec l'IdP (référencer le `sub`), permissions lues par chaque API à chaque requête (les porter dans le token, calculées à l'émission), relation Rôle ↔ Application redondante avec Rôle → Permissions, administration non cloisonnée par organisation, utilisateur limité à une organisation.
 
 **Décision** : modèle C au pilote. Service dédié déclenché si l'un des critères est atteint : rôles différents par organisation ; workflows d'approbation / recertification / séparation des tâches ; règles sur les données partagées par plusieurs API. Il deviendrait alors la source des permissions du token (mapper Keycloak, avec cache), les API restant inchangées.
+
+## Modèle d'identité et d'autorisation (02/10, DI1-DI7)
+
+### Populations et realms (DI1)
+
+| | `myc-internal` | `myc-customers` |
+|---|---|---|
+| Qui | admin, agent, superviseur d'agents | donateur, bénéficiaire |
+| Comptes | créés dans Keycloak (pas d'inscription) ; fédération AD plus tard | inscription libre, email vérifié ; Google, Facebook (identity brokering) |
+| Authentification | MFA obligatoire, sessions courtes | MFA optionnelle |
+| Exposition | jamais depuis Internet sans accès réservé | login public via APISIX externe + WAF |
+
+Arrivée de l'AD : les groupes restent définis dans Keycloak (mapper groupes AD → groupes Keycloak) ; le `party_id` des internes existants est conservé.
+
+### Groupe → Rôle métier → Permission (DI2)
+
+- Tout utilisateur appartient à au moins un groupe (groupes par défaut à l'inscription et à la première connexion fédérée).
+- Groupe → rôle métier (rôle de realm composite) uniquement ; rôle métier → permissions (rôles de client de chaque API).
+- Interdits : groupe → permission, utilisateur → rôle (sauf comptes de service). Contrôlés par la CI sur le realm as code et par l'administration déléguée (fine-grained admin v2 : les administrateurs gèrent l'appartenance aux groupes, pas les rôles).
+- Superviseur : `donation-supervisor` composite de `donation-agent` + lecture de l'audit de son équipe (+ escalade, à définir). « Ses agents » = son équipe, portée par les groupes.
+- Bénéficiaire : rôle `beneficiary` sans permission sur `donation-api` (API bénéficiaire à venir).
+
+### Contrat de claims (DI3)
+
+| Claim | Contenu |
+|---|---|
+| `iss`, `aud`, `exp`, `scope` | standard OAuth / OIDC |
+| `party_id` | identifiant métier de la personne (avec ou sans compte), attribut utilisateur non modifiable par l'utilisateur |
+| `actor_type` | `internal` / `external` (fixé par realm) |
+| `permissions` | liste à plat des permissions pour l'API visée |
+
+- Les API ne lisent que ce contrat : jamais `sub`, jamais `resource_access` ni autre structure propre à Keycloak.
+- `donorId` = `party_id` de la personne (pas de second identifiant, nom `donorId` conservé dans le contexte dons). Donateur sans compte : identifiant généré par l'API ; compte créé plus tard : rattachement en posant `party_id` = `donorId` existant (vérifié par un agent).
+- Création du `party_id` (DI7) : onboarding (BFF) pour les externes, à la création du compte pour les internes.
+- Changement d'IdP : reproduire les mappers + changer `issuer-uri` / `jwk-set-uri` des API.
+
+### Émetteurs et propagation (DI4, DI5)
+
+- Pilote : les API acceptent les deux émetteurs (liste explicite). Cible : APISIX interne traduit le token de l'IdP en token interne (émetteur unique du SI).
+- API → API : token exchange (RFC 8693) à chaque saut, audience limitée à l'API appelée, appelant tracé comme acteur.
+- Kafka : pas de token dans les événements ; contexte en en-têtes (`party_id`, `actor_type`, `actor_id`, `traceparent`) ; l'événement est un fait déjà autorisé ; identité et ACL par service (SASL OAuth ou mTLS).
+
+### Audit (DI6)
+
+`@Audited(action = ...)` (bibliothèque commune) sur les actions internes sensibles → événement (acteur `party_id` / `actor_type` / équipe, action, ressource, date, résultat, `traceId`) → topic `audit.events` → stockage non modifiable avec rétention ; le superviseur consulte l'audit de son équipe. Données personnelles minimales.
+
+### Création du profil donateur (option a)
+
+L'onboarding (BFF) appelle `POST /donors/me` au nom de l'utilisateur, une seule fois (`donor:create:own`) ; ensuite le donateur lit ses données, liste tous ses dons et en crée ; la modification de ses données passe par un agent.
