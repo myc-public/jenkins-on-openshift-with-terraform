@@ -168,6 +168,8 @@ Arrivée de l'AD : les groupes restent définis dans Keycloak (mapper groupes AD
 | `party_id` | identifiant métier de la personne (avec ou sans compte), attribut utilisateur non modifiable par l'utilisateur |
 | `actor_type` | `internal` / `external` (fixé par realm) |
 | `permissions` | liste à plat des permissions pour l'API visée |
+| `team_id` | équipe de l'interne (attribut du sous-groupe, ex. `agents/casablanca`), absent pour un admin ; optionnel (audit, DA5) |
+| `preferred_username` | identité lisible de l'auteur (claim OIDC standard) ; optionnel (audit, DA5) |
 
 - Les API ne lisent que ce contrat : jamais `sub`, jamais `resource_access` ni autre structure propre à Keycloak.
 - `donorId` = `party_id` de la personne (pas de second identifiant, nom `donorId` conservé dans le contexte dons). Donateur sans compte : identifiant généré par l'API ; compte créé plus tard : rattachement en posant `party_id` = `donorId` existant (vérifié par un agent).
@@ -180,9 +182,12 @@ Arrivée de l'AD : les groupes restent définis dans Keycloak (mapper groupes AD
 - API → API : token exchange (RFC 8693) à chaque saut, audience limitée à l'API appelée, appelant tracé comme acteur.
 - Kafka : pas de token dans les événements ; contexte en en-têtes (`party_id`, `actor_type`, `actor_id`, `traceparent`) ; l'événement est un fait déjà autorisé ; identité et ACL par service (SASL OAuth ou mTLS).
 
-### Audit (DI6)
+### Audit (DI6, précisé par DA1-DA7 le 04/10)
 
-`@Audited(action = ...)` (bibliothèque commune) sur les actions internes sensibles → événement (acteur `party_id` / `actor_type` / équipe, action, ressource, date, résultat, `traceId`) → topic `audit.events` → stockage non modifiable avec rétention ; le superviseur consulte l'audit de son équipe. Données personnelles minimales.
+- Périmètre (DA1) : toute modification ou suppression d'une donation, quel que soit l'auteur (aucun filtre sur le rôle).
+- Émission (DA2, DA7) : le service appelle `AuditRecorder` dans sa transaction et écrit une ligne dans la table dédiée `audit_outbox` : une ligne existe si et seulement si l'action est commitée (DA4 : 403 → K8, échec → rollback). Plus d'annotation `@Audited` : l'état avant modification n'est connu que du service.
+- Contenu (DA3, schéma `events/audit-recorded-v1.schema.json`) : `eventId`, `eventType` (`DonationUpdated` / `DonationDeleted`), `occurredAt`, `actor` (`partyId`, `username`, `actorType`, `teamId`, `clientId`, `issuer`), `action`, `resource` (`type`, `id`, `donorId`), `snapshot` (suppression) ou `changes` avant / après (modification), `traceId`. Aucune donnée personnelle du donateur.
+- Diffusion et consultation (DA6, autre composant) : CDC sur `audit_outbox` → topic `audit.events` → Elasticsearch (`_id` = `eventId`) ; le superviseur consulte l'audit de son équipe (filtre `actor.teamId`).
 
 ### Création du profil donateur (option a)
 
