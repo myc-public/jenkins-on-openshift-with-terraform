@@ -39,6 +39,22 @@ $tid = $j.traceId
 ```
 Attendu : `HTTP 404` ; une ligne JSON ECS avec `traceId`, `spanId`, nom du pod, version et environnement `dev`.
 
+## 1 bis. Scénarios S1 / S2 (Newman)
+
+Collection `inner-donation-api/postman/observabilite.postman_collection.json` : S1 parcours nominal (30 donateurs et dons), S2 erreurs 4xx (15 cas). Token `donation-tests` (dev uniquement) obtenu par la collection. Newman plutôt que le Runner : Postman gratuit n'accepte pas les data files. Newman 6.2.1 minimum (`pm.execution.skipRequest` utilisé par S2).
+```powershell
+cd D:\workspace\public\inner-donation-api\postman
+$b64 = oc --kubeconfig $kc get secret keycloak-realm-secret -n $ns -o jsonpath='{.data.DONATION_TESTS_CLIENT_SECRET}'
+$sec = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($b64)); "longueur du secret : $($sec.Length)"
+npx --yes newman@6.2.1 run observabilite.postman_collection.json -e e2e-sandbox.postman_environment.json --env-var "donationTestsClientSecret=$sec" `
+  --folder "S1 - Parcours nominal (data : observabilite-s1-nominal.data.json)" -d observabilite-s1-nominal.data.json
+npx --yes newman@6.2.1 run observabilite.postman_collection.json -e e2e-sandbox.postman_environment.json --env-var "donationTestsClientSecret=$sec" `
+  --folder "S2 - Erreurs 4xx (data : observabilite-s2-erreurs.data.json)" -d observabilite-s2-erreurs.data.json
+Remove-Variable sec, b64
+```
+Attendu : S1 180 / 180 assertions ; S2 15 / 15 (dans chaque itération, une seule requête exécutée, les autres sautées). Ne pas ajouter `--export-environment` : le secret serait écrit sur disque.
+Le cas S2 `Content-Type text/plain` est refusé par le WAF (403, règle CRS 920420) avant l'API : absent des métriques et des traces de l'API, visible dans les logs d'APISIX externe.
+
 ## 2. Trace dans Tempo (Telemetry — traces)
 
 Attendre ~10 s (export par lots toutes les 5 s).
