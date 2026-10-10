@@ -1,7 +1,7 @@
 # Test de bout en bout de l'observabilité
 
 Vérifie la chaîne **donation-api → OTLP → otel-lgtm (Collector OTel, Tempo, Loki, Prometheus, Grafana)** et les factors *Logs as Event Streams* et *Telemetry*.
-Validée sur le Sandbox le 26/09/2026 (image `1.1.0-SNAPSHOT-9420ad3-b27`). À rejouer après chaque reconstruction (`REBUILD.md`).
+Validée sur le Sandbox le 26/09/2026 (image `1.1.0-SNAPSHOT-9420ad3-b27`), puis le 10/10/2026 derrière la chaîne sécurisée (image `1.1.0-SNAPSHOT-1879da8-b6`, Route publique `donation`, token). À rejouer après chaque reconstruction (`REBUILD.md`).
 
 > **Depuis O1-5 (10/10/2026), l'API n'a plus de Route** : les requêtes passent par la Route publique `donation` (APISIX externe + WAF → APISIX interne → API) et `/api/v1` exige un token. Ici : token `donation-service` (lecture seule, `donation:read`), secret lu dans `keycloak-realm-secret` sans être affiché. Collection Postman (S1 / S2) : `inner-donation-api/postman/observabilite.postman_collection.json`, environnement `e2e-sandbox`.
 
@@ -63,7 +63,7 @@ $t = Invoke-Lgtm "http://localhost:3200/api/traces/$tid" | ConvertFrom-Json
 @($t.batches) | ForEach-Object { $_.scopeSpans.spans } | Sort-Object { [double]$_.startTimeUnixNano } |
   ForEach-Object { "{0,-40} {1,6} ms" -f $_.name, [math]::Round(([double]$_.endTimeUnixNano - [double]$_.startTimeUnixNano)/1e6,1) }
 ```
-Attendu : 5 spans — `http get /api/v1/donors/{donorId}` (racine), `security filterchain before`, `authorize request`, `secured request`, `security filterchain after`.
+Attendu : 7 spans — `http get /api/v1/donors/{donorId}` (racine), `security filterchain before` (validation du JWT), `authorize request`, `secured request`, `authorize method` (`@PreAuthorize`, K3), `query` (SQL), `security filterchain after`. Les passerelles APISIX n'émettent pas encore de spans (K8).
 
 ## 3. Même événement dans Loki, par `trace_id` (Logs — acheminement, corrélation)
 
@@ -90,7 +90,7 @@ foreach ($m in @(
   "=== $($m[0])"; $q = [uri]::EscapeDataString($m[1])
   (Invoke-Lgtm "http://localhost:9090/api/v1/query?query=$q" | ConvertFrom-Json).data.result | ForEach-Object { "  $($_.metric.uri) $($_.metric.status) -> $([math]::Round([double]$_.value[1],3))" } }
 ```
-Attendu : débit ~0,38 req/s par route (200 et 404) ; p95 ~10-15 ms ; heap et connexions DB renseignés. Les sondes `/management/**` sont exclues.
+Attendu : débit ~0,2 req/s par route (200 et 404 ; chaque appel traverse la Route publique et les deux APISIX, la boucle tourne moins vite qu'en accès direct) ; p95 ~10-20 ms côté API ; séries à 0 et p95 `NaN` pour les routes sans trafic dans la fenêtre (S1 / S2 plus anciens) ; heap et connexions DB renseignés. Les sondes `/management/**` sont exclues.
 
 ## 5. Sécurité de la stack
 
