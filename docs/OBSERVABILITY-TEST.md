@@ -3,7 +3,7 @@
 Vérifie la chaîne **donation-api → OTLP → otel-lgtm (Collector OTel, Tempo, Loki, Prometheus, Grafana)** et les factors *Logs as Event Streams* et *Telemetry*.
 Validée sur le Sandbox le 26/09/2026 (image `1.1.0-SNAPSHOT-9420ad3-b27`). À rejouer après chaque reconstruction (`REBUILD.md`).
 
-> **Depuis O1-5 (10/10/2026), l'API n'a plus de Route** : seule la Route `donation` (APISIX externe, WAF) est publique et `/api/v1` exige un token. Les étapes qui appellent `$api` sont à reprendre avec l'URL publique et un token `donation-service` (lot prévu après O1-6, avec la collection Postman observabilité).
+> **Depuis O1-5 (10/10/2026), l'API n'a plus de Route** : les requêtes passent par la Route publique `donation` (APISIX externe + WAF → APISIX interne → API) et `/api/v1` exige un token. Ici : token `donation-service` (lecture seule, `donation:read`), secret lu dans `keycloak-realm-secret` sans être affiché. Collection Postman (S1 / S2) : `inner-donation-api/postman/observabilite.postman_collection.json`, environnement `e2e-sandbox`.
 
 Prérequis : minikube démarré (Argo CD actif), mot de passe Grafana (Secret `observability-grafana-secret`).
 Commandes PowerShell. Utiliser `oc --kubeconfig ...` et non la fonction `ocs` : elle avale le `--` des `exec`.
@@ -13,20 +13,25 @@ Les API internes du pod `otel-lgtm` (Tempo `:3200`, Loki `:3100`, Prometheus `:9
 
 ```powershell
 $kc  = "$HOME\.kube\sandbox.config"; $ns = "gregorie769-dev"
-$api  = "https://" + (oc --kubeconfig $kc get route donation-api -n $ns -o jsonpath='{.spec.host}')
+$api  = "https://" + (oc --kubeconfig $kc get route donation -n $ns -o jsonpath='{.spec.host}')
 $graf = "https://" + (oc --kubeconfig $kc get route grafana -n $ns -o jsonpath='{.spec.host}')
+function Get-SvcToken {   # token donation-service (300 s) ; le secret reste dans une variable locale
+  $b64 = oc --kubeconfig $kc get secret keycloak-realm-secret -n $ns -o jsonpath='{.data.DONATION_SERVICE_CLIENT_SECRET}'
+  $s = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($b64))
+  (Invoke-RestMethod -Method Post "$api/realms/myc-internal/protocol/openid-connect/token" -Body @{ grant_type = 'client_credentials'; client_id = 'donation-service'; client_secret = $s; scope = 'donation:read' }).access_token }
 function Invoke-Lgtm([string]$url) { $p = oc --kubeconfig $kc get pods -n $ns -l app.kubernetes.io/name=otel-lgtm -o jsonpath='{.items[0].metadata.name}'; oc --kubeconfig $kc exec $p -n $ns -- curl -s $url }
 
 k --context minikube get applications -n argocd
 oc --kubeconfig $kc get pods -n $ns
 oc --kubeconfig $kc get configmap donation-api-config -n $ns -o jsonpath='{.data.OTLP_ENDPOINT} {.data.OTLP_EXPORT_ENABLED}'
 ```
-Attendu : `donation-api-dev` et `observability-dev` Synced / Healthy ; `donation-api`, `donation-api-mysql`, `otel-lgtm` 1/1 ; `http://otel-lgtm:4318 true`.
+Attendu : `donation-api-dev`, `observability-dev`, `keycloak-dev`, `apisix-internal-dev`, `apisix-external-dev` Synced / Healthy ; `donation-api`, `donation-api-mysql`, `otel-lgtm`, `keycloak`, `apisix-internal`, `apisix-external` 1/1 ; `http://otel-lgtm:4318 true`.
 
 ## 1. Requête tracée et log stdout (Logs as Event Streams)
 
 ```powershell
-curl.exe -s -o NUL -w "HTTP %{http_code}`n" "$api/api/v1/donors/00000000-0000-0000-0000-000000000000"
+$tok = Get-SvcToken
+curl.exe -s -o NUL -w "HTTP %{http_code}`n" -H "Authorization: Bearer $tok" "$api/api/v1/donors/00000000-0000-0000-0000-000000000000"
 Start-Sleep 5
 $j = (oc --kubeconfig $kc logs deploy/donation-api -n $ns --tail=100 | Select-String 'Donor not found' | Select-Object -Last 1).Line | ConvertFrom-Json
 $tid = $j.traceId
@@ -57,8 +62,9 @@ Attendu : `service=inner-donation-api env=dev level=INFO` ; `log: Resource not f
 
 `rate()` exige du trafic **étalé** sur plusieurs envois (un toutes les 30 s) : 2 minutes de charge.
 ```powershell
+$tok = Get-SvcToken; $auth = "Authorization: Bearer $tok"   # token neuf : valable 300 s, la charge dure 120 s
 $end = (Get-Date).AddSeconds(120)
-while ((Get-Date) -lt $end) { curl.exe -s -o NUL "$api/api/v1/donors"; curl.exe -s -o NUL "$api/api/v1/donors/00000000-0000-0000-0000-000000000000"; Start-Sleep -Milliseconds 800 }
+while ((Get-Date) -lt $end) { curl.exe -s -o NUL -H $auth "$api/api/v1/donors"; curl.exe -s -o NUL -H $auth "$api/api/v1/donors/00000000-0000-0000-0000-000000000000"; Start-Sleep -Milliseconds 800 }
 Start-Sleep 35
 foreach ($m in @(
   @('Debit (req/s)', 'sum by (uri, status) (rate(http_server_requests_milliseconds_count{service_name="inner-donation-api", uri!~"/management.*"}[2m]))'),
