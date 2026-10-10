@@ -3,6 +3,8 @@
 Vérifie la chaîne **donation-api → OTLP → otel-lgtm (Collector OTel, Tempo, Loki, Prometheus, Grafana)** et les factors *Logs as Event Streams* et *Telemetry*.
 Validée sur le Sandbox le 26/09/2026 (image `1.1.0-SNAPSHOT-9420ad3-b27`). À rejouer après chaque reconstruction (`REBUILD.md`).
 
+> **Depuis O1-5 (10/10/2026), l'API n'a plus de Route** : seule la Route `donation` (APISIX externe, WAF) est publique et `/api/v1` exige un token. Les étapes qui appellent `$api` sont à reprendre avec l'URL publique et un token `donation-service` (lot prévu après O1-6, avec la collection Postman observabilité).
+
 Prérequis : minikube démarré (Argo CD actif), mot de passe Grafana (Secret `observability-grafana-secret`).
 Commandes PowerShell. Utiliser `oc --kubeconfig ...` et non la fonction `ocs` : elle avale le `--` des `exec`.
 Les API internes du pod `otel-lgtm` (Tempo `:3200`, Loki `:3100`, Prometheus `:9090`) ne sont pas exposées : on les interroge par `oc exec`.
