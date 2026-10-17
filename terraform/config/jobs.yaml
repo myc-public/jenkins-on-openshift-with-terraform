@@ -127,3 +127,36 @@ jobs:
                   daysToKeep(30)
               }
           }
+
+    - script: |
+          pipelineJob('donation-web') {
+              description('CI/CD pipeline for donation-web (front React de l espace donateur, K6a)')
+
+              parameters {
+                  choiceParam('BRANCH', ['develop', 'uat', 'preprod', 'main'], 'Git Branch to be used by the build')
+              }
+
+              definition {
+                  cpsScm {
+                      scm {
+                          git {
+                              remote {
+                                  url('https://github.com/myc-public/donation-web.git')
+                              }
+                              branches('*/main')
+                          }
+                      }
+                      scriptPath('cicd/Jenkinsfile-ci')
+                      lightweight(true)
+                  }
+              }
+
+              properties {
+                  disableConcurrentBuilds()
+              }
+
+              logRotator {
+                  numToKeep(20)
+                  daysToKeep(30)
+              }
+          }
