@@ -60,3 +60,49 @@ jenkins:
                   claimName: "maven-m2-cache"
                   mountPath: "/home/jenkins/.m2"
                   readOnly: false
+
+          # Front web (K6a, donation-web) : Node 24 LTS (image de plus de deux semaines, epinglee par digest),
+          # npm par le proxy Nexus (npm-proxy) ; HOME en emptyDir (UID aleatoire OpenShift), sans cache persistant
+          - name: "nodejs"
+            namespace: "gregorie769-dev"
+            label: "nodejs"
+            serviceAccount: "jenkins"
+
+            containers:
+              - name: "node"
+                image: "node@sha256:ba849c60be29959425b8734d57b8b4b7d56f98edd9504c9af091d5281095a71e" # 24.20.0-bookworm-slim
+                command: "sleep"
+                args: "99d"
+                ttyEnabled: true
+
+                envVars:
+                  - envVar:
+                      key: "HOME"
+                      value: "/home/jenkins"
+
+                resourceRequestCpu: "500m"
+                resourceRequestMemory: "1Gi"
+                resourceLimitCpu: "1"
+                resourceLimitMemory: "2Gi"
+
+              # Client oc pour lancer le build d'image (BuildConfig), comme l'agent java-maven
+              - name: "oc"
+                image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+                command: "sleep"
+                args: "99d"
+                ttyEnabled: true
+
+                envVars:
+                  - envVar:
+                      key: "HOME"
+                      value: "/home/jenkins"
+
+                resourceRequestCpu: "100m"
+                resourceRequestMemory: "128Mi"
+                resourceLimitCpu: "500m"
+                resourceLimitMemory: "512Mi"
+
+            volumes:
+              - emptyDirVolume:
+                  memory: false
+                  mountPath: "/home/jenkins"
