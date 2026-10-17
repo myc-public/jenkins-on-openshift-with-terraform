@@ -36,6 +36,8 @@ build/
 terraform/.terraform/
 *.tfstate
 *.tfstate.*
+# Plans (terraform plan -out) : contiennent les valeurs des variables, secrets compris
+*.tfplan
 *.tfvars
 !terraform/terraform.tfvars.example
 crash.log
