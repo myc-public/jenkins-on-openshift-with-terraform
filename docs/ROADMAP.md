@@ -35,7 +35,7 @@ Chaque outil a UNE responsabilité. C'est cette séparation qui rend l'architect
 | `gitops-platform` | Source de vérité des déploiements : Kustomize `base/overlays`, ApplicationSet, AppProject |
 | `inner-donation-api` | Microservice pilote de la pipeline CI/CD bout-en-bout |
 | `jenkins-on-openshift-with-terraform` | Jenkins provisionné en Infrastructure as Code (JCasC, Job DSL, RBAC) |
-| `craft-platform` | Socle Maven : gestion des dépendances, plugins et artefacts (`craft-parent`, BOM, `craft-build-config`) |
+| `artifacts-manager` (ex-`craft-platform`) | Socle Maven : gestion des dépendances, plugins et artefacts (`craft-parent`, BOM, `craft-build-config`) |
 
 ## Outils utilisés
 
