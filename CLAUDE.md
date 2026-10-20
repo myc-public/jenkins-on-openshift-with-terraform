@@ -5,7 +5,8 @@ d'abord [README.md](README.md). Règles communes du socle : `platform-handbook`.
 
 ## Commandes
 
-- `cd terraform` ; `terraform plan -out=tfplan` ; `terraform apply tfplan` (jamais d'`apply` sans plan relu).
+- `cd terraform` ; `terraform plan -out=jenkins.tfplan` ; `terraform apply jenkins.tfplan` (jamais d'`apply` sans plan relu) ;
+  le plan contient les secrets : ignoré par Git (`*.tfplan`), supprimé après l'apply.
 - Image Jenkins : `ocs start-build jenkins --from-dir=jenkins-image --follow`.
 
 ## Règles propres à ce dépôt

@@ -16,8 +16,9 @@ Provisioning de Jenkins sur OpenShift par Terraform. Les fichiers JCasC (`config
 
 ```powershell
 terraform init
-terraform plan -out=tfplan
-terraform apply tfplan
+terraform plan -out=jenkins.tfplan
+terraform apply jenkins.tfplan
+Remove-Item jenkins.tfplan     # le plan contient les valeurs des variables, secrets compris
 ```
 
 Première installation (ordre imposé) : `platform-handbook`, `runbooks/reconstruction.md`, étape 3.

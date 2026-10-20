@@ -37,8 +37,9 @@ cd D:\workspace\public\jenkins-on-openshift-with-terraform\terraform
 # Une seule fois (ne jamais écraser un fichier existant), puis renseigner les valeurs
 if (-not (Test-Path secrets.auto.tfvars)) { Copy-Item secrets.auto.tfvars.example secrets.auto.tfvars }
 terraform init
-terraform plan -out=tfplan
-terraform apply tfplan
+terraform plan -out=jenkins.tfplan
+terraform apply jenkins.tfplan
+Remove-Item jenkins.tfplan     # le plan contient les valeurs des variables, secrets compris
 ```
 
 - Première installation sur un cluster (ordre : BuildConfig, image, puis le reste) :
