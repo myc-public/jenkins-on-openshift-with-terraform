@@ -30,39 +30,6 @@ jobs:
           }
 
     - script: |
-          pipelineJob('inner-order-api') {
-              description('CI/CD pipeline for inner-order-api')
-
-              parameters {
-                  choiceParam('BRANCH', ['develop', 'uat', 'preprod', 'main'], 'Git Branch to be used by the build')
-              }
-          
-              definition {
-                  cpsScm {
-                      scm {
-                          git {
-                              remote {
-                                  url('https://github.com/myc-public/inner-order-api.git')
-                              }
-                              branches('*/main')
-                          }
-                      }
-                      scriptPath('cicd/Jenkinsfile-ci')
-                      lightweight(true)
-                  }
-              }
-          
-              properties {
-                  disableConcurrentBuilds()
-              }
-          
-              logRotator {
-                  numToKeep(20)
-                  daysToKeep(30)
-              }
-          }
-
-    - script: |
           pipelineJob('inner-donation-api') {
               description('CI/CD pipeline for inner-donation-api')
 

@@ -38,13 +38,14 @@ terraform/.terraform/
 *.tfstate.*
 # Plans (terraform plan -out) : contiennent les valeurs des variables, secrets compris
 *.tfplan
+tfplan
 *.tfvars
 !terraform/terraform.tfvars.example
 crash.log
 crash.*.log
 
 ### others ###
-CLAUDE.md
+# Notes locales (jamais versionnees) ; README.md et CLAUDE.md sont versionnes (platform-handbook/CONTRIBUER.md)
 README_local.md
-CHANGELOG.md
+CLAUDE.local.md
 .log
