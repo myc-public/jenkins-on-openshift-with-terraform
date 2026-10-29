@@ -14,8 +14,13 @@ Cloudflare. Règles Maven : `artifacts-manager` (`settings.xml`).
 | Identifiants | compte Nexus dédié à Jenkins ; valeurs dans `terraform/secrets.auto.tfvars` (hors Git) |
 | URL vue par Jenkins | celle du tunnel, dans `nexus_url` de `terraform/secrets.auto.tfvars` |
 
-Commande de création du conteneur : **à relever** (`docker inspect nexus`) et à reporter ici ; elle n'était
-consignée nulle part.
+Création du conteneur (une seule fois, ou après sa suppression ; les données vivent dans le volume `nexus-data`) :
+```powershell
+if (-not (docker ps -a --filter name=^nexus$ --format '{{.Names}}')) {
+  docker run -d --name nexus -p 8081:8081 -v nexus-data:/nexus-data sonatype/nexus3:3.96.2 }
+```
+Version épinglée : celle des données du volume (relevée le 29/10 par `docker inspect nexus`, conteneur créé le 20/09 en
+`latest`). Monter de version est une migration de Nexus, irréversible : sauvegarder le volume avant.
 
 ## Démarrer
 
